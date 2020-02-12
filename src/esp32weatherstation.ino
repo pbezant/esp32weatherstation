@@ -1,7 +1,7 @@
 /******************************************************************************************
  * 
- * Elektor ESP32 based Weaterstation 
- * HW: EPS32-PICO-D4 on PCB 180468
+ * ESP32 based Weaterstation 
+ * HW: EPS32s on PCB 180468
  * 
  * Librarys requiered:
  * 
@@ -24,6 +24,7 @@
 #include <Adafruit_BME280.h>
 #include <Wire.h>
 #include <SDS011.h>
+#include <DHTesp.h> //dht11
 #include "Honnywell.h"
 #include "WindSensor.h"
 #include "RainSensor.h"
@@ -45,8 +46,10 @@
 #define battFull 13.5
 #define battInterval 2000
 
-#define bmeAddress 0x76
+#define bmeAddress 0x77
 #define bmeInterval 5000 //ms = 5 seconds
+
+#define dht11Pin 4
 
 #define sdsInterval 60000 //ms = 1 minute
 
@@ -101,6 +104,14 @@ float humidity = 0; //%
 float pressure = 0; //hPa
 bool bmeRead = 0;
 
+//dht11 variables
+bool volatile hasDHT11 = true;
+float DHT11TempC = 0;
+float DHT11TempF = 0;
+float DHT11Hum = 0;
+float DHT11HeatIndex = 0;
+unsigned long lastDHT11Time = 0;
+
 float PM10 = 0; //particle size: 10 um or less
 float PM25 = 0; //particle size: 2.5 um or less
 
@@ -110,7 +121,7 @@ float batteryCharging = false;
 //serial variables
 String serialIn;
 bool serialRdy = false;
-bool volatile hasBME280 = false;
+bool volatile hasBME280 = true;
 unsigned long lastBMETime = 0;
 unsigned long lastSDSTime = 0;
 unsigned long lastUploadTime = 0;
@@ -120,9 +131,10 @@ unsigned long lastBattMeasurement = 0;
 WindSensor ws(windSpeedPin, windDirPin);
 RainSensor rs(rainPin);
 Adafruit_BME280 bme;
+DHTesp dht;
 
 
-#define USE_SDS011
+//#define USE_SDS011
 //#define USE_HonnywellHPM
 
 #ifdef USE_SDS011
@@ -180,14 +192,16 @@ void setup() {
   digitalWrite(APLed, LOW);
   digitalWrite(STALed, LOW);
   digitalWrite(solarRelay, LOW);
- 
+  
   loadUploadSettings();
   loadNetworkCredentials();
   initWiFi();
   
   ws.initWindSensor();
   rs.initRainSensor();
-  
+
+  dht.setup(dht11Pin, DHTesp::DHT11);
+
   Wire.begin(25, 26, 100000); //sda, scl, freq=100kHz
   if(false == bme.begin(bmeAddress)){
         hasBME280 = false;
@@ -240,12 +254,20 @@ void loop() {
   //read sensors
   readWindSensor();
   readRainSensor();
+  // readDHT11();
+
+  if ((lastDHT11Time + bmeInterval +1000) < millis()) {
+    readDHT11();
+  }
 
   //read bme280 every 5 seconds
   if ((lastBMETime + bmeInterval) < millis()) {
     lastBMETime = millis();
     readBME();
   }
+
+  
+  
 
   //read SDS011 every minute
   #ifdef USE_SDS011
@@ -344,6 +366,26 @@ void readBME() {
     humidity=0;
     pressure=0;
   }
+}
+
+void readDHT11() {
+  if( hasDHT11 == true && dht.getStatus() != 0){
+    
+      DHT11Hum = dht.getHumidity();
+      DHT11TempC = dht.getTemperature();
+      DHT11TempF = dht.toFahrenheit(DHT11TempC);
+      DHT11HeatIndex = dht.computeHeatIndex(dht.toFahrenheit(DHT11TempC), DHT11Hum, true);
+    
+  }
+  // else {
+  //   DHT11Hum = 0;
+  //   DHT11TempC = 0;
+  //   DHT11TempF = 0;
+  //   DHT11HeatIndex = 0;
+  // }
+
+
+  
 }
 
 void MQTT_Task( void* prarm ){

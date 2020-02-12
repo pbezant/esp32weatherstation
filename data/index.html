@@ -198,6 +198,26 @@
 					<table class="vertical">
 						<thead>
 							<tr>
+								<th colspan="2">Internal Temperature, humidity, Heat Index</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td>Temperature</td><td id="InternalTemp">-</td>
+							</tr>
+							<tr>
+								<td>Humidity</td><td id="InternalHumidity">-</td>
+							</tr>
+							<tr>
+								<td>HeatIndex</td><td id="InternalHeatIndex">-</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+				<div>
+					<table class="vertical">
+						<thead>
+							<tr>
 								<th colspan="2">Dust</th>
 							</tr>
 						</thead>
@@ -600,7 +620,10 @@
 			document.getElementById("pressure").innerHTML = d[5] + "hPa";
 			document.getElementById("PM25").innerHTML = d[6] + "&micro;g/m&sup3;"; //ug/m3
 			document.getElementById("PM10").innerHTML = d[7] + "&micro;g/m&sup3;";
-            document.getElementById("AVGRAIN").innerHTML = d[8];
+			document.getElementById("AVGRAIN").innerHTML = d[8];
+			document.getElementById("InternalTemp").innerHTML = d[9] + "&#8451;";
+			document.getElementById("InternalHumidity").innerHTML = d[10] +"%";
+			document.getElementById("InternalHeatIndex").innerHTML = d[11] + "&#8451;";
 		}
 		
 		//get battery data

@@ -131,7 +131,11 @@ void getWeatherData() {
   response += String(pressure) + ",";
   response += String(PM25) + ",";
   response += String(PM10) +",";
-  response += String(rainAmountAvg);
+  response += String(rainAmountAvg) +",";
+  response += String(DHT11TempF) +",";
+  response += String(DHT11Hum) +",";
+  response += String(DHT11HeatIndex);
+
   sendData(response);
 }
 
