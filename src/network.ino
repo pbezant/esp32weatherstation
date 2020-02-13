@@ -213,7 +213,7 @@ void initWiFi() {
   digitalWrite(APLed, LOW);
   digitalWrite(STALed, LOW);
   Serial.print("WiFi: ");
-  if (!digitalRead(APPin)) {
+  if (digitalRead(APPin)) {
     Serial.println("AP");
     configureSoftAP();
   }
