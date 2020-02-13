@@ -21,6 +21,7 @@
 #include <WebServer.h>
 #include <SPIFFS.h>
 #include <Preferences.h>
+#include <Adafruit_Sensor.h>
 #include <Adafruit_BME280.h>
 #include <Wire.h>
 #include <SDS011.h>
@@ -203,8 +204,10 @@ void setup() {
   dht.setup(dht11Pin, DHTesp::DHT11);
 
   Wire.begin(25, 26, 100000); //sda, scl, freq=100kHz
+  
   if(false == bme.begin(bmeAddress)){
         hasBME280 = false;
+        Serial.println("no bme sensor detected");
   } else {
     hasBME280 = true;
     //recommended settings for weather monitoring
@@ -369,14 +372,18 @@ void readBME() {
 }
 
 void readDHT11() {
-  if( hasDHT11 == true && dht.getStatus() != 0){
+  if( hasDHT11 == true){
     
       DHT11Hum = dht.getHumidity();
       DHT11TempC = dht.getTemperature();
       DHT11TempF = dht.toFahrenheit(DHT11TempC);
-      DHT11HeatIndex = dht.computeHeatIndex(dht.toFahrenheit(DHT11TempC), DHT11Hum, true);
-    
+      DHT11HeatIndex = dht.computeHeatIndex(DHT11TempF, DHT11Hum, true);
+      // if (dht.getStatus() = 0) {
+      //   Serial.println("DHT11 error status: " + String(dht.getStatusString()));
+      //   return;
+      // }
   }
+   
   // else {
   //   DHT11Hum = 0;
   //   DHT11TempC = 0;
