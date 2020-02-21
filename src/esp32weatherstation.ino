@@ -206,6 +206,7 @@ void setup() {
   Wire.begin(25, 26, 100000); //sda, scl, freq=100kHz
   
   if(false == bme.begin(bmeAddress)){
+  //if(!bme.begin(bmeAddress)){
         hasBME280 = false;
         Serial.println("no bme sensor detected");
   } else {
@@ -264,9 +265,11 @@ void loop() {
   }
 
   //read bme280 every 5 seconds
-  if ((lastBMETime + bmeInterval) < millis()) {
-    lastBMETime = millis();
-    readBME();
+  if( hasBME280 == true ){{
+    if ((lastBMETime + bmeInterval) < millis()) {
+      lastBMETime = millis();
+      readBME();
+    }
   }
 
   
@@ -333,9 +336,10 @@ void loop() {
     digitalWrite(solarRelay, batteryCharging);
   }
 }
+}
 
 //reads the windsensor and stores the values in global variables
-void readWindSensor() {
+void readWindSensor(){
   if (digitalRead(windSpeedPin) && !prevWindPinVal) {
     ws.calcWindSpeed();
   }
@@ -360,28 +364,36 @@ void readRainSensor() {
 }
 
 void readBME() {
-  if( hasBME280 == true ){
+//  if( hasBME280 == true ){
     bme.takeForcedMeasurement();
-    temperature = bme.readTemperature();
+    temperature = bme.readTemperature()*(9.0/5.0) + 32;
+    //temperature = bme.readTemperature();
     humidity = bme.readHumidity();
     pressure = bme.readPressure() / 100.0;
-  } else {
-    humidity=0;
-    pressure=0;
-  }
+  // } else {
+  //   humidity=0;
+  //   pressure=0;
+  // }
 }
 
 void readDHT11() {
   if( hasDHT11 == true){
     
-      DHT11Hum = dht.getHumidity();
-      DHT11TempC = dht.getTemperature();
-      DHT11TempF = dht.toFahrenheit(DHT11TempC);
-      DHT11HeatIndex = dht.computeHeatIndex(DHT11TempF, DHT11Hum, true);
+    float newDHT11Hum = dht.getHumidity();
+    float newDHT11TempC = dht.getTemperature();
+    float newDHT11TempF = dht.toFahrenheit(DHT11TempC);
+    float newDHT11HeatIndex = dht.computeHeatIndex(DHT11TempF, DHT11Hum, true);
       // if (dht.getStatus() = 0) {
       //   Serial.println("DHT11 error status: " + String(dht.getStatusString()));
       //   return;
       // }
+      if (newDHT11HeatIndex != NAN && newDHT11Hum != NAN && newDHT11TempF != NAN){
+          DHT11TempF = newDHT11TempF;
+          DHT11TempC = newDHT11TempC;
+          DHT11Hum = newDHT11Hum;
+          DHT11HeatIndex = newDHT11HeatIndex;
+      }
+
   }
    
   // else {

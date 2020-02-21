@@ -615,15 +615,15 @@
 				showWind(angle, speed);
 			else
 				showWind(0, 0);
-			document.getElementById("temperature").innerHTML = d[3] + "&#8451;"; //degrees celcius
+			document.getElementById("temperature").innerHTML = d[3] + "&#8457;"; //Degree Fahrenheit
 			document.getElementById("humidity").innerHTML = d[4] + "%";
 			document.getElementById("pressure").innerHTML = d[5] + "hPa";
 			document.getElementById("PM25").innerHTML = d[6] + "&micro;g/m&sup3;"; //ug/m3
 			document.getElementById("PM10").innerHTML = d[7] + "&micro;g/m&sup3;";
 			document.getElementById("AVGRAIN").innerHTML = d[8];
-			document.getElementById("InternalTemp").innerHTML = d[9] + "&#8451;";
+			document.getElementById("InternalTemp").innerHTML = d[9] + "&#8457;";
 			document.getElementById("InternalHumidity").innerHTML = d[10] +"%";
-			document.getElementById("InternalHeatIndex").innerHTML = d[11] + "&#8451;";
+			document.getElementById("InternalHeatIndex").innerHTML = d[11] + "&#8457;";
 		}
 		
 		//get battery data
